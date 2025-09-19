@@ -1,0 +1,48 @@
+// Prisma schema for budget-track
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  engineType    = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Expense {
+  id          Int       @id @default(autoincrement())
+  amount      Decimal
+  category    String
+  name        String?
+  description String?
+  iconKey     String
+  createdAt   DateTime  @default(now())
+}
+
+model Saving {
+  id        Int      @id @default(autoincrement())
+  amount    Decimal
+  note      String?
+  iconKey   String
+  createdAt DateTime @default(now())
+}
+
+model Investment {
+  id         Int      @id @default(autoincrement())
+  amount     Decimal
+  instrument String
+  note       String?
+  iconKey    String
+  createdAt  DateTime @default(now())
+}
+
+model SavingsGoal {
+  id               Int      @id @default(autoincrement())
+  name             String
+  targetAmount     Decimal
+  currentAmount    Decimal  @default(0)
+  monthlyIncrement Decimal
+  iconKey          String
+  createdAt        DateTime @default(now())
+}
