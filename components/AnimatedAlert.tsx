@@ -30,7 +30,7 @@ export function AnimatedAlert({ className, icon, title, description, children }:
   }, []);
 
   return (
-    <Alert ref={containerRef as any} className={className}>
+    <Alert ref={containerRef} className={className}>
       {icon}
       <AlertTitle>{title}</AlertTitle>
       {description ? <AlertDescription>{description}</AlertDescription> : null}

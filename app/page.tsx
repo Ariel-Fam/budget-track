@@ -13,7 +13,7 @@ import { SpendingCharts } from "@/components/charts/SpendingCharts";
 import { SavingsCharts } from "@/components/charts/SavingsCharts";
 import { RecordIcon } from "@/components/icons";
 import { SpendingCategoryPie } from "@/components/charts/SpendingCategoryPie";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
 import AnimatedAlert from "@/components/AnimatedAlert";
 import { CircleDollarSign, PiggyBank, LineChart as LineChartIcon, Target, Info } from "lucide-react";
 import { addExpense, deleteExpense, addSaving, deleteSaving, addInvestment, deleteInvestment, addSavingsGoal, incrementSavingsGoal, deleteSavingsGoal } from "./actions";
