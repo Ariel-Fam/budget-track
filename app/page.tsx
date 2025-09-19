@@ -15,6 +15,7 @@ import { RecordIcon } from "@/components/icons";
 import { SpendingCategoryPie } from "@/components/charts/SpendingCategoryPie";
 
 import AnimatedAlert from "@/components/AnimatedAlert";
+import ServerActionPending from "@/components/ServerActionPending";
 import { CircleDollarSign, PiggyBank, LineChart as LineChartIcon, Target, Info } from "lucide-react";
 import { addExpense, deleteExpense, addSaving, deleteSaving, addInvestment, deleteInvestment, addSavingsGoal, incrementSavingsGoal, deleteSavingsGoal } from "./actions";
 
@@ -99,7 +100,8 @@ export default async function Home() {
                 <CardTitle>Add Expense</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={addExpense} className="grid gap-4 md:grid-cols-5 items-end">
+                <form action={addExpense} className="grid gap-4 md:grid-cols-5 items-end relative">
+                  <ServerActionPending />
                   <div>
                     <Label className="mb-2" htmlFor="amount">Amount</Label>
                     <Input name="amount" id="amount" type="number" step="0.01" required />
@@ -143,7 +145,8 @@ export default async function Home() {
                       <span className="text-lg font-semibold">${Number(e.amount).toFixed(2)}</span>
                       <span className="text-muted-foreground text-sm">{e.name || e.category}</span>
                     </CardTitle>
-                    <form action={deleteExpense}>
+                    <form action={deleteExpense} className="relative">
+                      <ServerActionPending />
                       <input type="hidden" name="id" value={e.id} />
                       <Button variant="outline" aria-label="Delete">Delete</Button>
                     </form>
@@ -179,7 +182,8 @@ export default async function Home() {
                 <CardTitle>Add Savings Goal</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={addSavingsGoal} className="grid gap-4 md:grid-cols-4 items-end">
+                <form action={addSavingsGoal} className="grid gap-4 md:grid-cols-4 items-end relative">
+                  <ServerActionPending />
                   <div>
                     <Label htmlFor="g-name">Name</Label>
                     <Input name="name" id="g-name" placeholder="e.g., New Laptop" required />
@@ -215,7 +219,8 @@ export default async function Home() {
                     <CardContent>
                       <div className="text-sm text-muted-foreground">${Number(g.currentAmount).toFixed(2)} / ${Number(g.targetAmount).toFixed(2)} ({progress}%)</div>
                       <div className="mt-2 text-sm">Increment: ${Number(g.monthlyIncrement).toFixed(2)}</div>
-                      <form action={incrementSavingsGoal} className="mt-4">
+                      <form action={incrementSavingsGoal} className="mt-4 relative">
+                        <ServerActionPending />
                         <input type="hidden" name="id" value={g.id} />
                         <Button type="submit" aria-label="Add increment">+ Add ${Number(g.monthlyIncrement).toFixed(2)}</Button>
                       </form>
@@ -239,7 +244,8 @@ export default async function Home() {
                 <CardTitle>Add Saving</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={addSaving} className="grid gap-4 md:grid-cols-3 items-end">
+                <form action={addSaving} className="grid gap-4 md:grid-cols-3 items-end relative">
+                  <ServerActionPending />
                   <div>
                     <Label htmlFor="s-amount">Amount</Label>
                     <Input name="amount" id="s-amount" type="number" step="0.01" required />
@@ -262,7 +268,8 @@ export default async function Home() {
                       <span className="text-lg font-semibold">${Number(s.amount).toFixed(2)}</span>
                       <span className="text-muted-foreground text-sm">{s.note || "Saving"}</span>
                     </CardTitle>
-                    <form action={deleteSaving}>
+                    <form action={deleteSaving} className="relative">
+                      <ServerActionPending />
                       <input type="hidden" name="id" value={s.id} />
                       <Button variant="outline" aria-label="Delete">Delete</Button>
                     </form>
@@ -295,7 +302,8 @@ export default async function Home() {
                 <CardTitle>Add Investment</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={addInvestment} className="grid gap-4 md:grid-cols-4 items-end">
+                <form action={addInvestment} className="grid gap-4 md:grid-cols-4 items-end relative">
+                  <ServerActionPending />
                   <div>
                     <Label htmlFor="i-amount">Amount</Label>
                     <Input name="amount" id="i-amount" type="number" step="0.01" required />
@@ -322,7 +330,8 @@ export default async function Home() {
                       <span className="text-lg font-semibold">${Number(i.amount).toFixed(2)}</span>
                       <span className="text-muted-foreground text-sm">{i.instrument}</span>
                     </CardTitle>
-                    <form action={deleteInvestment}>
+                    <form action={deleteInvestment} className="relative">
+                      <ServerActionPending />
                       <input type="hidden" name="id" value={i.id} />
                       <Button variant="outline" aria-label="Delete">Delete</Button>
                     </form>
