@@ -3,13 +3,12 @@
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle, PieChart, Wallet2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
 
 
 export default function SignInLanding() {
-  const router = useRouter()
+
 
   return (
     <div className="bg-white dark:text-black">
