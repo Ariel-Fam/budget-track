@@ -5,7 +5,7 @@ import { CircleDollarSign, PiggyBank, LineChart, Target } from "lucide-react";
 function Footer() {
     return (
         <footer className="border-t">
-            <div className="mx-auto max-w-7xl px-4 py-10 bg-blue-900/55">
+            <div className="mx-auto  w-screen px-4 py-10 bg-blue-900/55">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="space-y-3 ">
                         <div className="flex items-center gap-2">
