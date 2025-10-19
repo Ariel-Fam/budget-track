@@ -5,6 +5,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import type { Id } from '@/convex/_generated/dataModel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -251,6 +252,7 @@ export default function PageContentClient() {
                       <RecordIcon iconKey={e.iconKey} className="size-5" />
                       <span className="text-lg font-semibold">${Number(e.amount).toFixed(2)}</span>
                       <span className="text-muted-foreground text-sm">{e.name || e.category}</span>
+                      <Badge variant="secondary">{e.category}</Badge>
                     </CardTitle>
                     <Button variant="outline" aria-label="Delete" onClick={() => handleDeleteExpense(e._id)}>Delete</Button>
                   </CardHeader>
