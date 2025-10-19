@@ -61,13 +61,13 @@ export default function PageContentClient() {
     const form = e.currentTarget
     const fd = new FormData(form)
     const amount = Number(fd.get('amount'))
-    const category = String(fd.get('category') ?? 'Other')
+    const category = selectedCategory
     const name = (fd.get('name') ?? '') as string
     const description = (fd.get('description') ?? '') as string
     if (!Number.isFinite(amount) || amount <= 0) return
     await addExpense({ amount, category, name: name || undefined, description: description || undefined, iconKey: pickRandom(EXPENSE_ICON_KEYS) })
     form.reset()
-  }, [addExpense])
+  }, [addExpense, selectedCategory])
 
   const handleDeleteExpense = useCallback(async (id: Id<'expenses'>) => {
     await deleteExpense({ id })
