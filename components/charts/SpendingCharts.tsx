@@ -19,9 +19,10 @@ import { colorsForKeys, colorForKey } from "@/lib/colors";
 type SpendingChartsProps = {
   byCategory: Array<{ category: string; amount: number }>;
   byMonth: Array<{ month: string; amount: number }>;
+  activeCategory?: string;
 };
 
-export function SpendingCharts({ byCategory, byMonth }: SpendingChartsProps) {
+export function SpendingCharts({ byCategory, byMonth, activeCategory }: SpendingChartsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card>
@@ -41,9 +42,21 @@ export function SpendingCharts({ byCategory, byMonth }: SpendingChartsProps) {
                   outerRadius={100}
                   innerRadius={50}
                 >
-                  {byCategory.map((d, i) => (
-                    <Cell key={d.category} fill={colorsForKeys(byCategory.map((x) => x.category))[i]} />
-                  ))}
+                  {byCategory.map((d, i) => {
+                    const categories = byCategory.map((x) => x.category)
+                    const fill = colorsForKeys(categories)[i]
+                    const isActive = activeCategory ? d.category === activeCategory : false
+                    const dimOpacity = activeCategory && !isActive ? 0.4 : 1
+                    return (
+                      <Cell
+                        key={d.category}
+                        fill={fill}
+                        fillOpacity={dimOpacity}
+                        stroke={isActive ? '#000' : undefined}
+                        strokeWidth={isActive ? 2 : 0}
+                      />
+                    )
+                  })}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>

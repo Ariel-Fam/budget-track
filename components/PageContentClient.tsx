@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import type { Id } from '@/convex/_generated/dataModel'
@@ -53,6 +53,8 @@ export default function PageContentClient() {
   const addGoal = useMutation(api.records.addGoal)
   const deleteGoal = useMutation(api.records.deleteGoal)
   const incrementGoal = useMutation(api.records.incrementGoal)
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('Groceries')
 
   const handleAddExpense = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -147,6 +149,20 @@ export default function PageContentClient() {
     ).sort((a, b) => a.month.localeCompare(b.month))
   }, [expenses])
 
+  const byMonthFiltered = useMemo(() => {
+    if (!expenses) return []
+    const filtered = expenses.filter((e) => e.category === selectedCategory)
+    return Object.values(
+      filtered.reduce<Record<string, { month: string; amount: number }>>((acc, e) => {
+        const d = new Date(e.createdAt)
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        acc[key] ??= { month: key, amount: 0 }
+        acc[key].amount += Number(e.amount)
+        return acc
+      }, {})
+    ).sort((a, b) => a.month.localeCompare(b.month))
+  }, [expenses, selectedCategory])
+
   const savingsBreakdown = useMemo(() => (savings ? savings.map((s) => ({ label: s.note || 'Saving', amount: Number(s.amount) })) : []), [savings])
   const investmentsBreakdown = useMemo(() => (investments ? investments.map((i) => ({ label: i.instrument, amount: Number(i.amount) })) : []), [investments])
 
@@ -199,7 +215,7 @@ export default function PageContentClient() {
                   </div>
                   <div>
                     <Label className="mb-2" htmlFor="category">Category</Label>
-                    <Select name="category" defaultValue="Groceries">
+                    <Select name="category" value={selectedCategory} onValueChange={setSelectedCategory}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -686,7 +702,7 @@ export default function PageContentClient() {
 
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Dashboard</h2>
-        <SpendingCharts byCategory={byCategory} byMonth={byMonth} />
+        <SpendingCharts byCategory={byCategory} byMonth={byMonthFiltered} activeCategory={selectedCategory} />
         <SpendingCategoryPie byName={byName} />
         <SavingsCharts savingsBreakdown={savingsBreakdown} investmentsBreakdown={investmentsBreakdown} />
       </div>
