@@ -226,6 +226,7 @@ export default function PageContentClient() {
                         <SelectItem value="Transport">Transport</SelectItem>
                         <SelectItem value="Entertainment">Entertainment</SelectItem>
                         <SelectItem value="Bill">Bill</SelectItem>
+                        <SelectItem value="Savings">Savings</SelectItem>
                         <SelectItem value="Misc">Misc</SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
