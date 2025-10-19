@@ -702,7 +702,7 @@ export default function PageContentClient() {
 
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Dashboard</h2>
-        <SpendingCharts byCategory={byCategory} byMonth={byMonthFiltered} activeCategory={selectedCategory} />
+        <SpendingCharts byCategory={byCategory} byMonth={byMonth} activeCategory={selectedCategory} />
         <SpendingCategoryPie byName={byName} />
         <SavingsCharts savingsBreakdown={savingsBreakdown} investmentsBreakdown={investmentsBreakdown} />
       </div>
