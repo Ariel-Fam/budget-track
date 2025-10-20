@@ -23,6 +23,27 @@ type SpendingChartsProps = {
 };
 
 export function SpendingCharts({ byCategory, byMonth, activeCategory }: SpendingChartsProps) {
+  const categories = React.useMemo(() => byCategory.map((x) => x.category), [byCategory])
+  const categoriesKey = React.useMemo(() => categories.join('|'), [categories])
+  const categoryColors = React.useMemo(() => {
+    const used = new Set<string>()
+    const map = new Map<string, string>()
+    const baseOffset = Math.floor(Math.random() * 1000)
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i]
+      let offset = baseOffset + i
+      let color = colorForKey(cat, offset)
+      let attempts = 0
+      while (used.has(color) && attempts < 50) {
+        offset++
+        color = colorForKey(cat, offset)
+        attempts++
+      }
+      used.add(color)
+      map.set(cat, color)
+    }
+    return map
+  }, [categoriesKey])
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card>
@@ -42,9 +63,8 @@ export function SpendingCharts({ byCategory, byMonth, activeCategory }: Spending
                   outerRadius={100}
                   innerRadius={50}
                 >
-                  {byCategory.map((d, i) => {
-                    const categories = byCategory.map((x) => x.category)
-                    const fill = colorsForKeys(categories)[i]
+                  {byCategory.map((d) => {
+                    const fill = categoryColors.get(d.category) || colorForKey(d.category)
                     const isActive = activeCategory ? d.category === activeCategory : false
                     const dimOpacity = activeCategory && !isActive ? 0.4 : 1
                     return (
