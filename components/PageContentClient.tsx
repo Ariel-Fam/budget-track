@@ -173,6 +173,10 @@ export default function PageContentClient() {
   const totalExpenses = useMemo(() => (expenses ? expenses.reduce((sum: number, e) => sum + Number(e.amount), 0) : 0), [expenses])
   const totalSavings = useMemo(() => (savings ? savings.reduce((sum: number, s) => sum + Number(s.amount), 0) : 0), [savings])
   const totalInvestments = useMemo(() => (investments ? investments.reduce((sum: number, i) => sum + Number(i.amount), 0) : 0), [investments])
+  const expenseCount = useMemo(() => expenses?.length ?? 0, [expenses])
+  const savingsCount = useMemo(() => savings?.length ?? 0, [savings])
+  const investmentsCount = useMemo(() => investments?.length ?? 0, [investments])
+  const goalsCount = useMemo(() => goals?.length ?? 0, [goals])
 
   // Tabs sync with URL hash for sidebar navigation
   const [activeTab, setActiveTab] = useState<'expenses' | 'savings' | 'investments' | 'goals' | 'literacy'>('expenses')
@@ -298,6 +302,16 @@ export default function PageContentClient() {
                     </CardContent>
                   </Card>
                 </div>
+                <div className="flex justify-center">
+                  <Card className="mt-2 w-full max-w-sm">
+                    <CardHeader>
+                      <CardTitle className="text-center">Total Expense Items</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-semibold">{expenseCount}</div>
+                    </CardContent>
+                  </Card>
+                </div>
                 {/* Table of expense names and categories */}
                 <div className="mt-6 overflow-x-auto">
                   <table className="min-w-full text-sm">
@@ -377,6 +391,16 @@ export default function PageContentClient() {
                     )
                   })}
                 </div>
+                <div className="flex justify-center">
+                  <Card className="mt-4 w-full max-w-sm">
+                    <CardHeader>
+                      <CardTitle className="text-center">Total Savings Goals</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-semibold">{goalsCount}</div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </Suspense>
             
@@ -437,6 +461,16 @@ export default function PageContentClient() {
                   </CardHeader>
                   <CardContent className="ml-20">
                     <div className="text-2xl font-semibold ">${totalSavings.toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="flex justify-center">
+                <Card className="mt-2 w-full max-w-sm">
+                  <CardHeader>
+                    <CardTitle className="text-center">Total Savings Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-semibold">{savingsCount}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -527,6 +561,16 @@ export default function PageContentClient() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-semibold">${totalInvestments.toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="flex justify-center">
+                <Card className="mt-2 w-full max-w-sm">
+                  <CardHeader>
+                    <CardTitle className="text-center">Total Investment Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-semibold">{investmentsCount}</div>
                   </CardContent>
                 </Card>
               </div>
