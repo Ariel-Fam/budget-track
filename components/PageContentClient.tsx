@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import type { Id } from '@/convex/_generated/dataModel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -153,19 +153,7 @@ export default function PageContentClient() {
     ).sort((a, b) => a.month.localeCompare(b.month))
   }, [expenses])
 
-  const byMonthFiltered = useMemo(() => {
-    if (!expenses) return []
-    const filtered = expenses.filter((e) => e.category === selectedCategory)
-    return Object.values(
-      filtered.reduce<Record<string, { month: string; amount: number }>>((acc, e) => {
-        const d = new Date(e.createdAt)
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-        acc[key] ??= { month: key, amount: 0 }
-        acc[key].amount += Number(e.amount)
-        return acc
-      }, {})
-    ).sort((a, b) => a.month.localeCompare(b.month))
-  }, [expenses, selectedCategory])
+  // Note: we no longer compute a filtered monthly series here to avoid unused variable warnings.
 
   const savingsBreakdown = useMemo(() => (savings ? savings.map((s) => ({ label: s.note || 'Saving', amount: Number(s.amount) })) : []), [savings])
   const investmentsBreakdown = useMemo(() => (investments ? investments.map((i) => ({ label: i.instrument, amount: Number(i.amount) })) : []), [investments])
@@ -186,6 +174,24 @@ export default function PageContentClient() {
   const totalSavings = useMemo(() => (savings ? savings.reduce((sum: number, s) => sum + Number(s.amount), 0) : 0), [savings])
   const totalInvestments = useMemo(() => (investments ? investments.reduce((sum: number, i) => sum + Number(i.amount), 0) : 0), [investments])
 
+  // Tabs sync with URL hash for sidebar navigation
+  const [activeTab, setActiveTab] = useState<'expenses' | 'savings' | 'investments' | 'goals' | 'literacy'>('expenses')
+  useEffect(() => {
+    const valid = new Set(['expenses', 'savings', 'investments', 'goals', 'literacy'])
+    const applyFromHash = () => {
+      const h = (window.location.hash || '').replace('#', '')
+      if (valid.has(h)) setActiveTab(h as typeof activeTab)
+    }
+    applyFromHash()
+    window.addEventListener('hashchange', applyFromHash)
+    return () => window.removeEventListener('hashchange', applyFromHash)
+  }, [])
+  useEffect(() => {
+    if (window.location.hash.replace('#', '') !== activeTab) {
+      window.location.hash = activeTab
+    }
+  }, [activeTab])
+
   return (
 
     <Suspense fallback={<LoadingOverlay open={true} />}>
@@ -193,7 +199,7 @@ export default function PageContentClient() {
       <div className="min-h-screen p-6 md:p-10 space-y-10">
         <div className="space-y-6">
           <h1 className="text-2xl font-semibold">Budget Dashboard</h1>
-          <Tabs defaultValue="expenses">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
             <TabsList className="mb-4">
               <TabsTrigger className="bg-green-700 " value="expenses">Expenses</TabsTrigger>
               <TabsTrigger className="bg-green-700" value="savings">Savings</TabsTrigger>
@@ -258,18 +264,27 @@ export default function PageContentClient() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(expenses || []).map((e) => (
                     <Card key={e._id}>
-                      <CardHeader className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                          <RecordIcon iconKey={e.iconKey} className="size-5" />
+                      <CardHeader className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <RecordIcon iconKey={e.iconKey} className="size-5 shrink-0" />
                           <span className="text-lg font-semibold">${Number(e.amount).toFixed(2)}</span>
-                          <span className="text-muted-foreground text-sm">{e.name || e.category}</span>
-                          <Badge variant="secondary">{e.category}</Badge>
-                        </CardTitle>
-                        <Button variant="outline" aria-label="Delete" onClick={() => handleDeleteExpense(e._id)}>Delete</Button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 min-w-0">
+                          <Badge className="truncate max-w-[12rem] sm:max-w-[16rem] w-fit rounded-full bg-black text-white border-0 px-2 py-0.5">
+                            {e.name || e.category}
+                          </Badge>
+                          <Badge className="w-fit shrink-0 rounded-full bg-black text-white border-0 px-2 py-0.5" variant="secondary">{e.category}</Badge>
+                          {e.description ? (
+                            <Badge className="truncate max-w-[14rem] sm:max-w-[18rem] w-fit rounded-full bg-black text-white border-0 px-2 py-0.5">
+                              {e.description}
+                            </Badge>
+                          ) : null}
+                        </div>
                       </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">{e.description || '—'}</p>
-                      </CardContent>
+                      <CardContent />
+                      <CardFooter className="pt-0">
+                        <Button className="ml-auto focus-visible:ring-inset focus-visible:ring-offset-0" variant="outline" aria-label="Delete" onClick={() => handleDeleteExpense(e._id)}>Delete</Button>
+                      </CardFooter>
                     </Card>
                   ))}
                 </div>
@@ -342,13 +357,10 @@ export default function PageContentClient() {
                     const progress = Math.min(100, Math.round((Number(g.currentAmount) / Number(g.targetAmount)) * 100))
                     return (
                       <Card key={g._id} className="rounded-xl">
-                        <CardHeader className="flex items-center justify-between">
-                          <CardTitle className="flex items-center gap-2">
-                            <RecordIcon iconKey={g.iconKey} className="size-5" />
-                            <span className="font-semibold">{g.name}</span>
-                          </CardTitle>
-                          <div className="flex gap-2">
-                            <Button variant="outline" aria-label="Delete" onClick={() => handleDeleteGoal(g._id)}>Delete</Button>
+                        <CardHeader className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <RecordIcon iconKey={g.iconKey} className="size-5 shrink-0" />
+                            <span className="font-semibold break-words line-clamp-2">{g.name}</span>
                           </div>
                         </CardHeader>
                         <CardContent>
@@ -358,6 +370,9 @@ export default function PageContentClient() {
                             <Button onClick={() => handleIncrementGoal(g._id)} aria-label="Add increment">+ Add ${Number(g.monthlyIncrement).toFixed(2)}</Button>
                           </div>
                         </CardContent>
+                        <CardFooter className="pt-0">
+                          <Button className="focus-visible:ring-inset focus-visible:ring-offset-0 ml-auto" variant="outline" aria-label="Delete" onClick={() => handleDeleteGoal(g._id)}>Delete</Button>
+                        </CardFooter>
                       </Card>
                     )
                   })}
@@ -397,14 +412,21 @@ export default function PageContentClient() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(savings || []).map((s) => (
                   <Card key={s._id}>
-                    <CardHeader className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <RecordIcon iconKey={s.iconKey} className="size-5" />
+                    <CardHeader className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <RecordIcon iconKey={s.iconKey} className="size-5 shrink-0" />
                         <span className="text-lg font-semibold">${Number(s.amount).toFixed(2)}</span>
-                        <span className="text-muted-foreground text-sm">{s.note || 'Saving'}</span>
-                      </CardTitle>
-                      <Button variant="outline" aria-label="Delete" onClick={() => handleDeleteSaving(s._id)}>Delete</Button>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 min-w-0">
+                        <Badge className="truncate max-w-[14rem] sm:max-w-[18rem] w-fit rounded-full bg-black text-white border-0 px-2 py-0.5">
+                          {s.note || 'Saving'}
+                        </Badge>
+                        <Badge className="w-fit shrink-0 rounded-full bg-black text-white border-0 px-2 py-0.5" variant="secondary">Saving</Badge>
+                      </div>
                     </CardHeader>
+                    <CardFooter className="pt-0">
+                      <Button className="ml-auto focus-visible:ring-inset focus-visible:ring-offset-0" variant="outline" aria-label="Delete" onClick={() => handleDeleteSaving(s._id)}>Delete</Button>
+                    </CardFooter>
                   </Card>
                 ))}
               </div>
@@ -475,14 +497,26 @@ export default function PageContentClient() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(investments || []).map((i) => (
                   <Card key={i._id}>
-                    <CardHeader className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <RecordIcon iconKey={i.iconKey} className="size-5" />
+                    <CardHeader className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <RecordIcon iconKey={i.iconKey} className="size-5 shrink-0" />
                         <span className="text-lg font-semibold">${Number(i.amount).toFixed(2)}</span>
-                        <span className="text-muted-foreground text-sm">{i.instrument}</span>
-                      </CardTitle>
-                      <Button variant="outline" aria-label="Delete" onClick={() => handleDeleteInvestment(i._id)}>Delete</Button>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 min-w-0">
+                        <Badge className="truncate max-w-[12rem] sm:max-w-[16rem] w-fit rounded-full bg-black text-white border-0 px-2 py-0.5">
+                          {i.instrument}
+                        </Badge>
+                        <Badge className="w-fit shrink-0 rounded-full bg-black text-white border-0 px-2 py-0.5" variant="secondary">Investment</Badge>
+                        {i.note ? (
+                          <Badge className="truncate max-w-[14rem] sm:max-w-[18rem] w-fit rounded-full bg-black text-white border-0 px-2 py-0.5">
+                            {i.note}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </CardHeader>
+                    <CardFooter className="pt-0">
+                      <Button className="ml-auto focus-visible:ring-inset focus-visible:ring-offset-0" variant="outline" aria-label="Delete" onClick={() => handleDeleteInvestment(i._id)}>Delete</Button>
+                    </CardFooter>
                   </Card>
                 ))}
               </div>

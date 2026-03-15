@@ -14,7 +14,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
-import { colorsForKeys, colorForKey } from "@/lib/colors";
+import { colorForKey } from "@/lib/colors";
 
 type SpendingChartsProps = {
   byCategory: Array<{ category: string; amount: number }>;
@@ -24,7 +24,6 @@ type SpendingChartsProps = {
 
 export function SpendingCharts({ byCategory, byMonth, activeCategory }: SpendingChartsProps) {
   const categories = React.useMemo(() => byCategory.map((x) => x.category), [byCategory])
-  const categoriesKey = React.useMemo(() => categories.join('|'), [categories])
   const categoryColors = React.useMemo(() => {
     const used = new Set<string>()
     const map = new Map<string, string>()
@@ -43,7 +42,7 @@ export function SpendingCharts({ byCategory, byMonth, activeCategory }: Spending
       map.set(cat, color)
     }
     return map
-  }, [categoriesKey])
+  }, [categories])
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card>
